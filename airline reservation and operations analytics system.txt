@@ -1,0 +1,663 @@
+mysql> CREATE DATABASE airline_db; USE airline_db;
+Query OK, 1 row affected (0.01 sec)
+
+Database changed
+mysql> -- PASSENGERS
+mysql> CREATE TABLE passengers (
+    ->     passenger_id INT PRIMARY KEY,
+    ->     passenger_name VARCHAR(50),
+    ->     phone VARCHAR(15),
+    ->     email VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> ^C
+mysql> CREATE TABLE airports (
+    ->     airport_id INT PRIMARY KEY,
+    ->     airport_name VARCHAR(50),
+    ->     city VARCHAR(30),
+    ->     country VARCHAR(30),
+    ->     airport_code VARCHAR(10)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> -- AIRCRAFT
+mysql> CREATE TABLE aircraft (
+    ->     aircraft_id INT PRIMARY KEY,
+    ->     model VARCHAR(40),
+    ->     capacity INT,
+    ->     airline_name VARCHAR(40)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> -- FLIGHTS
+mysql> CREATE TABLE flights (
+    ->     flight_id INT PRIMARY KEY,
+    ->     flight_no VARCHAR(15),
+    ->     departure_time DATETIME,
+    ->     arrival_time DATETIME,
+    ->     source_airport INT,
+    ->     destination_airport INT,
+    ->     aircraft_id INT,
+    ->
+    ->     FOREIGN KEY (source_airport)
+    ->     REFERENCES airports(airport_id),
+    ->
+    ->     FOREIGN KEY (destination_airport)
+    ->     REFERENCES airports(airport_id),
+    ->
+    ->     FOREIGN KEY (aircraft_id)
+    ->     REFERENCES aircraft(aircraft_id)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> -- PAYMENTS
+mysql> CREATE TABLE payments (
+    ->     payment_id INT PRIMARY KEY,
+    ->     amount DECIMAL(10,2),
+    ->     payment_mode VARCHAR(20),
+    ->     payment_status VARCHAR(20),
+    ->     payment_date DATE
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> -- BOOKINGS
+mysql> CREATE TABLE bookings (
+    ->     booking_id INT PRIMARY KEY,
+    ->     booking_date DATE,
+    ->     seat_number VARCHAR(10),
+    ->     booking_status VARCHAR(20),
+    ->     passenger_id INT,
+    ->     flight_id INT,
+    ->     payment_id INT,
+    ->
+    ->     FOREIGN KEY (passenger_id)
+    ->     REFERENCES passengers(passenger_id),
+    ->
+    ->     FOREIGN KEY (flight_id)
+    ->     REFERENCES flights(flight_id),
+    ->
+    ->     FOREIGN KEY (payment_id)
+    ->     REFERENCES payments(payment_id)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> -- CREW
+mysql> CREATE TABLE crew (
+    ->     crew_id INT PRIMARY KEY,
+    ->     crew_name VARCHAR(50),
+    ->     role VARCHAR(30),
+    ->     contact VARCHAR(15),
+    ->     aircraft_id INT,
+    ->
+    ->     FOREIGN KEY (aircraft_id)
+    ->     REFERENCES aircraft(aircraft_id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE operations_analytics (
+    ->     report_id INT PRIMARY KEY,
+    ->     revenue DECIMAL(10,2),
+    ->     occupancy_rate DECIMAL(5,2),
+    ->     delay_minutes INT,
+    ->     fuel_consumption DECIMAL(10,2),
+    ->     report_date DATE,
+    ->     flight_id INT,
+    ->
+    ->     FOREIGN KEY (flight_id)
+    ->     REFERENCES flights(flight_id)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO passengers VALUES
+    -> (1,'Rahul Sharma','9876543210','rahul@gmail.com'),
+    -> (2,'Priya Reddy','9876543211','priya@gmail.com'),
+    -> (3,'Amit Kumar','9876543212','amit@gmail.com'),
+    -> (4,'Sneha Patel','9876543213','sneha@gmail.com'),
+    -> (5,'Kiran Rao','9876543214','kiran@gmail.com');
+Query OK, 5 rows affected (0.02 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO airports VALUES
+    -> (1,'Rajiv Gandhi International Airport','Hyderabad','India','HYD'),
+    -> (2,'Indira Gandhi International Airport','Delhi','India','DEL'),
+    -> (3,'Chhatrapati Shivaji International Airport','Mumbai','India','BOM'),
+    -> (4,'Kempegowda International Airport','Bengaluru','India','BLR'),
+    -> (5,'Chennai International Airport','Chennai','India','MAA');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO aircraft VALUES
+    -> (101,'Airbus A320',180,'IndiGo'),
+    -> (102,'Boeing 737',189,'SpiceJet'),
+    -> (103,'Airbus A321',220,'Air India'),
+    -> (104,'Boeing 787 Dreamliner',300,'Vistara'),
+    -> (105,'ATR 72',78,'Alliance Air');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO flights VALUES
+    -> (201,'6E201','2026-07-10 08:30:00','2026-07-10 10:45:00',1,2,101),
+    -> (202,'AI305','2026-07-11 09:15:00','2026-07-11 11:45:00',2,3,103),
+    -> (203,'SG110','2026-07-12 06:00:00','2026-07-12 08:20:00',3,4,102),
+    -> (204,'UK450','2026-07-13 13:00:00','2026-07-13 15:15:00',4,5,104),
+    -> (205,'9I600','2026-07-14 17:30:00','2026-07-14 19:00:00',5,1,105);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO payments VALUES
+    -> (301,4500.00,'UPI','Paid','2026-07-01'),
+    -> (302,5200.00,'Credit Card','Paid','2026-07-02'),
+    -> (303,3900.00,'Net Banking','Paid','2026-07-03'),
+    -> (304,6100.00,'Debit Card','Pending','2026-07-04'),
+    -> (305,2800.00,'Cash','Paid','2026-07-05');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO bookings VALUES
+    -> (401,'2026-07-01','12A','Confirmed',1,201,301),
+    -> (402,'2026-07-02','8B','Confirmed',2,202,302),
+    -> (403,'2026-07-03','15C','Cancelled',3,203,303),
+    -> (404,'2026-07-04','2A','Confirmed',4,204,304),
+    -> (405,'2026-07-05','18F','Confirmed',5,205,305);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO crew VALUES
+    -> (501,'Captain Arjun','Pilot','9876500011',101),
+    -> (502,'Captain Meera','Pilot','9876500012',103),
+    -> (503,'Rohit Singh','Cabin Crew','9876500013',102),
+    -> (504,'Neha Sharma','Cabin Crew','9876500014',104),
+    -> (505,'Suresh Kumar','Cabin Crew','9876500015',105);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO operations_analytics VALUES
+    -> (601,810000.00,92.5,5,4200.50,'2026-07-10',201),
+    -> (602,950000.00,96.0,10,5100.00,'2026-07-11',202),
+    -> (603,720000.00,85.0,0,3900.25,'2026-07-12',203),
+    -> (604,1200000.00,98.2,15,6400.75,'2026-07-13',204),
+    -> (605,500000.00,78.5,2,2500.30,'2026-07-14',205);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> ^C
+mysql> SELECT * FROM passengers;
++--------------+----------------+------------+-----------------+
+| passenger_id | passenger_name | phone      | email           |
++--------------+----------------+------------+-----------------+
+|            1 | Rahul Sharma   | 9876543210 | rahul@gmail.com |
+|            2 | Priya Reddy    | 9876543211 | priya@gmail.com |
+|            3 | Amit Kumar     | 9876543212 | amit@gmail.com  |
+|            4 | Sneha Patel    | 9876543213 | sneha@gmail.com |
+|            5 | Kiran Rao      | 9876543214 | kiran@gmail.com |
++--------------+----------------+------------+-----------------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT * FROM airports;
++------------+-------------------------------------------+-----------+---------+--------------+
+| airport_id | airport_name                              | city      | country | airport_code |
++------------+-------------------------------------------+-----------+---------+--------------+
+|          1 | Rajiv Gandhi International Airport        | Hyderabad | India   | HYD          |
+|          2 | Indira Gandhi International Airport       | Delhi     | India   | DEL          |
+|          3 | Chhatrapati Shivaji International Airport | Mumbai    | India   | BOM          |
+|          4 | Kempegowda International Airport          | Bengaluru | India   | BLR          |
+|          5 | Chennai International Airport             | Chennai   | India   | MAA          |
++------------+-------------------------------------------+-----------+---------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM aircraft;
++-------------+-----------------------+----------+--------------+
+| aircraft_id | model                 | capacity | airline_name |
++-------------+-----------------------+----------+--------------+
+|         101 | Airbus A320           |      180 | IndiGo       |
+|         102 | Boeing 737            |      189 | SpiceJet     |
+|         103 | Airbus A321           |      220 | Air India    |
+|         104 | Boeing 787 Dreamliner |      300 | Vistara      |
+|         105 | ATR 72                |       78 | Alliance Air |
++-------------+-----------------------+----------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM flights;
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+| flight_id | flight_no | departure_time      | arrival_time        | source_airport | destination_airport | aircraft_id |
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+|       201 | 6E201     | 2026-07-10 08:30:00 | 2026-07-10 10:45:00 |              1 |                   2 |         101 |
+|       202 | AI305     | 2026-07-11 09:15:00 | 2026-07-11 11:45:00 |              2 |                   3 |         103 |
+|       203 | SG110     | 2026-07-12 06:00:00 | 2026-07-12 08:20:00 |              3 |                   4 |         102 |
+|       204 | UK450     | 2026-07-13 13:00:00 | 2026-07-13 15:15:00 |              4 |                   5 |         104 |
+|       205 | 9I600     | 2026-07-14 17:30:00 | 2026-07-14 19:00:00 |              5 |                   1 |         105 |
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM payments;
++------------+---------+--------------+----------------+--------------+
+| payment_id | amount  | payment_mode | payment_status | payment_date |
++------------+---------+--------------+----------------+--------------+
+|        301 | 4500.00 | UPI          | Paid           | 2026-07-01   |
+|        302 | 5200.00 | Credit Card  | Paid           | 2026-07-02   |
+|        303 | 3900.00 | Net Banking  | Paid           | 2026-07-03   |
+|        304 | 6100.00 | Debit Card   | Pending        | 2026-07-04   |
+|        305 | 2800.00 | Cash         | Paid           | 2026-07-05   |
++------------+---------+--------------+----------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM bookings;
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+| booking_id | booking_date | seat_number | booking_status | passenger_id | flight_id | payment_id |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+|        401 | 2026-07-01   | 12A         | Confirmed      |            1 |       201 |        301 |
+|        402 | 2026-07-02   | 8B          | Confirmed      |            2 |       202 |        302 |
+|        403 | 2026-07-03   | 15C         | Cancelled      |            3 |       203 |        303 |
+|        404 | 2026-07-04   | 2A          | Confirmed      |            4 |       204 |        304 |
+|        405 | 2026-07-05   | 18F         | Confirmed      |            5 |       205 |        305 |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM crew;
++---------+---------------+------------+------------+-------------+
+| crew_id | crew_name     | role       | contact    | aircraft_id |
++---------+---------------+------------+------------+-------------+
+|     501 | Captain Arjun | Pilot      | 9876500011 |         101 |
+|     502 | Captain Meera | Pilot      | 9876500012 |         103 |
+|     503 | Rohit Singh   | Cabin Crew | 9876500013 |         102 |
+|     504 | Neha Sharma   | Cabin Crew | 9876500014 |         104 |
+|     505 | Suresh Kumar  | Cabin Crew | 9876500015 |         105 |
++---------+---------------+------------+------------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM operations_analytics;
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+| report_id | revenue    | occupancy_rate | delay_minutes | fuel_consumption | report_date | flight_id |
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+|       601 |  810000.00 |          92.50 |             5 |          4200.50 | 2026-07-10  |       201 |
+|       602 |  950000.00 |          96.00 |            10 |          5100.00 | 2026-07-11  |       202 |
+|       603 |  720000.00 |          85.00 |             0 |          3900.25 | 2026-07-12  |       203 |
+|       604 | 1200000.00 |          98.20 |            15 |          6400.75 | 2026-07-13  |       204 |
+|       605 |  500000.00 |          78.50 |             2 |          2500.30 | 2026-07-14  |       205 |
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> -- Display all confirmed bookings.
+mysql> SELECT *
+    -> FROM bookings
+    -> WHERE booking_status = 'Confirmed';
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+| booking_id | booking_date | seat_number | booking_status | passenger_id | flight_id | payment_id |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+|        401 | 2026-07-01   | 12A         | Confirmed      |            1 |       201 |        301 |
+|        402 | 2026-07-02   | 8B          | Confirmed      |            2 |       202 |        302 |
+|        404 | 2026-07-04   | 2A          | Confirmed      |            4 |       204 |        304 |
+|        405 | 2026-07-05   | 18F         | Confirmed      |            5 |       205 |        305 |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+4 rows in set (0.01 sec)
+
+mysql> -- Display passengers whose phone number starts with '987654321'.
+mysql> SELECT *
+    -> FROM passengers
+    -> WHERE phone LIKE '987654321%';
++--------------+----------------+------------+-----------------+
+| passenger_id | passenger_name | phone      | email           |
++--------------+----------------+------------+-----------------+
+|            1 | Rahul Sharma   | 9876543210 | rahul@gmail.com |
+|            2 | Priya Reddy    | 9876543211 | priya@gmail.com |
+|            3 | Amit Kumar     | 9876543212 | amit@gmail.com  |
+|            4 | Sneha Patel    | 9876543213 | sneha@gmail.com |
+|            5 | Kiran Rao      | 9876543214 | kiran@gmail.com |
++--------------+----------------+------------+-----------------+
+5 rows in set (0.01 sec)
+
+mysql> ^C
+mysql> Display aircraft having capacity greater than 180.
+    -> ^C
+mysql> SELECT *
+    -> FROM aircraft
+    -> WHERE capacity > 180;
++-------------+-----------------------+----------+--------------+
+| aircraft_id | model                 | capacity | airline_name |
++-------------+-----------------------+----------+--------------+
+|         102 | Boeing 737            |      189 | SpiceJet     |
+|         103 | Airbus A321           |      220 | Air India    |
+|         104 | Boeing 787 Dreamliner |      300 | Vistara      |
++-------------+-----------------------+----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> -- Display payments whose amount is less than ₹5000.
+mysql> SELECT *
+    -> FROM payments
+    -> WHERE amount < 5000;
++------------+---------+--------------+----------------+--------------+
+| payment_id | amount  | payment_mode | payment_status | payment_date |
++------------+---------+--------------+----------------+--------------+
+|        301 | 4500.00 | UPI          | Paid           | 2026-07-01   |
+|        303 | 3900.00 | Net Banking  | Paid           | 2026-07-03   |
+|        305 | 2800.00 | Cash         | Paid           | 2026-07-05   |
++------------+---------+--------------+----------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> -- BETWEEN
+mysql> -- Display bookings made between July 1 and July 4.
+mysql> SELECT *
+    -> FROM bookings
+    -> WHERE booking_date
+    -> BETWEEN '2026-07-01' AND '2026-07-04';
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+| booking_id | booking_date | seat_number | booking_status | passenger_id | flight_id | payment_id |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+|        401 | 2026-07-01   | 12A         | Confirmed      |            1 |       201 |        301 |
+|        402 | 2026-07-02   | 8B          | Confirmed      |            2 |       202 |        302 |
+|        403 | 2026-07-03   | 15C         | Cancelled      |            3 |       203 |        303 |
+|        404 | 2026-07-04   | 2A          | Confirmed      |            4 |       204 |        304 |
++------------+--------------+-------------+----------------+--------------+-----------+------------+
+4 rows in set (0.00 sec)
+
+mysql> -- Display payments between ₹3000 and ₹6000.
+mysql> SELECT *
+    -> FROM payments
+    -> WHERE amount
+    -> BETWEEN 3000 AND 6000;
++------------+---------+--------------+----------------+--------------+
+| payment_id | amount  | payment_mode | payment_status | payment_date |
++------------+---------+--------------+----------------+--------------+
+|        301 | 4500.00 | UPI          | Paid           | 2026-07-01   |
+|        302 | 5200.00 | Credit Card  | Paid           | 2026-07-02   |
+|        303 | 3900.00 | Net Banking  | Paid           | 2026-07-03   |
++------------+---------+--------------+----------------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> -- LIKE
+mysql> Display passengers whose names start with 'R'.
+    -> ^C
+mysql> ^C
+mysql> SELECT *
+    -> FROM passengers
+    -> WHERE passenger_name LIKE 'R%';
++--------------+----------------+------------+-----------------+
+| passenger_id | passenger_name | phone      | email           |
++--------------+----------------+------------+-----------------+
+|            1 | Rahul Sharma   | 9876543210 | rahul@gmail.com |
++--------------+----------------+------------+-----------------+
+1 row in set (0.00 sec)
+
+mysql> -- Display aircraft models containing "Airbus".
+mysql> SELECT *
+    -> FROM aircraft
+    -> WHERE model LIKE '%Airbus%';
++-------------+-------------+----------+--------------+
+| aircraft_id | model       | capacity | airline_name |
++-------------+-------------+----------+--------------+
+|         101 | Airbus A320 |      180 | IndiGo       |
+|         103 | Airbus A321 |      220 | Air India    |
++-------------+-------------+----------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> Aggregate Functions
+    -> AVG()
+    -> ^C
+mysql> -- TO Find average ticket amount.
+mysql> SELECT AVG(amount) AS Average_Amount
+    -> FROM payments;
++----------------+
+| Average_Amount |
++----------------+
+|    4500.000000 |
++----------------+
+1 row in set (0.01 sec)
+
+mysql> -- ^C
+mysql> -- MAX()
+mysql> -- Find the highest ticket payment.
+mysql> SELECT MAX(amount) AS Highest_Payment
+    -> FROM payments;
++-----------------+
+| Highest_Payment |
++-----------------+
+|         6100.00 |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> -- count()
+mysql> -- Count total passengers.
+mysql> SELECT COUNT(*) AS Total_Passengers
+    -> FROM passengers;
++------------------+
+| Total_Passengers |
++------------------+
+|                5 |
++------------------+
+1 row in set (0.01 sec)
+
+mysql> -- sum()
+mysql> -- Find total revenue generated.
+mysql> SELECT SUM(revenue) AS Total_Revenue
+    -> FROM operations_analytics;
++---------------+
+| Total_Revenue |
++---------------+
+|    4180000.00 |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> -- GROUP BY
+mysql> -- Count bookings for each flight.
+mysql> SELECT flight_id,
+    -> COUNT(*) AS Total_Bookings
+    -> FROM bookings
+    -> GROUP BY flight_id;
++-----------+----------------+
+| flight_id | Total_Bookings |
++-----------+----------------+
+|       201 |              1 |
+|       202 |              1 |
+|       203 |              1 |
+|       204 |              1 |
+|       205 |              1 |
++-----------+----------------+
+5 rows in set (0.01 sec)
+
+mysql> Calculate total payment received by payment status.
+    -> SELECT payment_status,
+    -> SUM(amount) AS Total_Amount
+    -> FROM payments
+    -> GROUP BY payment_status;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'Calculate total payment received by payment status.
+SELECT payment_status,
+SUM(a' at line 1
+mysql> -- ^C
+mysql> Calculate total payment received by payment status.
+    -> ^C
+mysql> SELECT payment_status,
+    -> SUM(amount) AS Total_Amount
+    -> FROM payments
+    -> GROUP BY payment_status;
++----------------+--------------+
+| payment_status | Total_Amount |
++----------------+--------------+
+| Paid           |     16400.00 |
+| Pending        |      6100.00 |
++----------------+--------------+
+2 rows in set (0.01 sec)
+
+mysql> -- Count crew members assigned to each aircraft.
+mysql> SELECT aircraft_id,
+    -> COUNT(*) AS Crew_Count
+    -> FROM crew
+    -> GROUP BY aircraft_id;
++-------------+------------+
+| aircraft_id | Crew_Count |
++-------------+------------+
+|         101 |          1 |
+|         102 |          1 |
+|         103 |          1 |
+|         104 |          1 |
+|         105 |          1 |
++-------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> -- JOINS
+mysql> -- Display passenger name and booked flight number.
+mysql> SELECT p.passenger_name,
+    -> f.flight_no
+    -> FROM passengers p
+    -> JOIN bookings b
+    -> ON p.passenger_id = b.passenger_id
+    -> JOIN flights f
+    -> ON b.flight_id = f.flight_id;
++----------------+-----------+
+| passenger_name | flight_no |
++----------------+-----------+
+| Rahul Sharma   | 6E201     |
+| Priya Reddy    | AI305     |
+| Amit Kumar     | SG110     |
+| Sneha Patel    | UK450     |
+| Kiran Rao      | 9I600     |
++----------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> -- Display passenger name, payment amount and payment status.
+mysql> SELECT p.passenger_name,
+    -> pay.amount,
+    -> pay.payment_status
+    -> FROM passengers p
+    -> JOIN bookings b
+    -> ON p.passenger_id = b.passenger_id
+    -> JOIN payments pay
+    -> ON b.payment_id = pay.payment_id;
++----------------+---------+----------------+
+| passenger_name | amount  | payment_status |
++----------------+---------+----------------+
+| Rahul Sharma   | 4500.00 | Paid           |
+| Priya Reddy    | 5200.00 | Paid           |
+| Amit Kumar     | 3900.00 | Paid           |
+| Sneha Patel    | 6100.00 | Pending        |
+| Kiran Rao      | 2800.00 | Paid           |
++----------------+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> -- Display aircraft model with crew name.
+mysql> SELECT a.model,
+    -> c.crew_name,
+    -> c.role
+    -> FROM aircraft a
+    -> JOIN crew c
+    -> ON a.aircraft_id = c.aircraft_id;
++-----------------------+---------------+------------+
+| model                 | crew_name     | role       |
++-----------------------+---------------+------------+
+| Airbus A320           | Captain Arjun | Pilot      |
+| Boeing 737            | Rohit Singh   | Cabin Crew |
+| Airbus A321           | Captain Meera | Pilot      |
+| Boeing 787 Dreamliner | Neha Sharma   | Cabin Crew |
+| ATR 72                | Suresh Kumar  | Cabin Crew |
++-----------------------+---------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> -- GROUP BY + HAVING
+mysql> -- V
+mysql> --Display flights having more than one booking.
+    -> ^C
+mysql> SELECT flight_id,
+    -> COUNT(*) AS Total_Bookings
+    -> FROM bookings
+    -> GROUP BY flight_id
+    -> HAVING COUNT(*) > 1;
+Empty set (0.00 sec)
+
+mysql> -- Display payment status whose total amount exceeds ₹10,000.
+mysql> SELECT payment_status,
+    -> SUM(amount) AS Total_Amount
+    -> FROM payments
+    -> GROUP BY payment_status
+    -> HAVING SUM(amount) > 10000;
++----------------+--------------+
+| payment_status | Total_Amount |
++----------------+--------------+
+| Paid           |     16400.00 |
++----------------+--------------+
+1 row in set (0.01 sec)
+
+mysql> -- ORDER BY
+mysql> -- Display flights in ascending order of departure time.
+mysql> SELECT *
+    -> FROM flights
+    -> ORDER BY departure_time ASC;
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+| flight_id | flight_no | departure_time      | arrival_time        | source_airport | destination_airport | aircraft_id |
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+|       201 | 6E201     | 2026-07-10 08:30:00 | 2026-07-10 10:45:00 |              1 |                   2 |         101 |
+|       202 | AI305     | 2026-07-11 09:15:00 | 2026-07-11 11:45:00 |              2 |                   3 |         103 |
+|       203 | SG110     | 2026-07-12 06:00:00 | 2026-07-12 08:20:00 |              3 |                   4 |         102 |
+|       204 | UK450     | 2026-07-13 13:00:00 | 2026-07-13 15:15:00 |              4 |                   5 |         104 |
+|       205 | 9I600     | 2026-07-14 17:30:00 | 2026-07-14 19:00:00 |              5 |                   1 |         105 |
++-----------+-----------+---------------------+---------------------+----------------+---------------------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> -- Display payments in descending order of amount.
+mysql> SELECT *
+    -> FROM payments
+    -> ORDER BY amount DESC;
++------------+---------+--------------+----------------+--------------+
+| payment_id | amount  | payment_mode | payment_status | payment_date |
++------------+---------+--------------+----------------+--------------+
+|        304 | 6100.00 | Debit Card   | Pending        | 2026-07-04   |
+|        302 | 5200.00 | Credit Card  | Paid           | 2026-07-02   |
+|        301 | 4500.00 | UPI          | Paid           | 2026-07-01   |
+|        303 | 3900.00 | Net Banking  | Paid           | 2026-07-03   |
+|        305 | 2800.00 | Cash         | Paid           | 2026-07-05   |
++------------+---------+--------------+----------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> Display operations analytics ordered by occupancy rate.
+    -> ^C
+mysql> SELECT *
+    -> FROM operations_analytics
+    -> ORDER BY occupancy_rate DESC;
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+| report_id | revenue    | occupancy_rate | delay_minutes | fuel_consumption | report_date | flight_id |
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+|       604 | 1200000.00 |          98.20 |            15 |          6400.75 | 2026-07-13  |       204 |
+|       602 |  950000.00 |          96.00 |            10 |          5100.00 | 2026-07-11  |       202 |
+|       601 |  810000.00 |          92.50 |             5 |          4200.50 | 2026-07-10  |       201 |
+|       603 |  720000.00 |          85.00 |             0 |          3900.25 | 2026-07-12  |       203 |
+|       605 |  500000.00 |          78.50 |             2 |          2500.30 | 2026-07-14  |       205 |
++-----------+------------+----------------+---------------+------------------+-------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> -- JOIN + GROUP BY
+mysql> SELECT f.flight_no,
+    -> COUNT(b.booking_id) AS Passenger_Count
+    -> FROM flights f
+    -> JOIN bookings b
+    -> ON f.flight_id = b.flight_id
+    -> GROUP BY f.flight_no;
++-----------+-----------------+
+| flight_no | Passenger_Count |
++-----------+-----------------+
+| 6E201     |               1 |
+| AI305     |               1 |
+| SG110     |               1 |
+| UK450     |               1 |
+| 9I600     |               1 |
++-----------+-----------------+
+5 rows in set (0.00 sec)
+
+mysql> ^C
+mysql> -- JOIN + GROUP BY + ORDER BY
+mysql> SELECT f.flight_no,
+    -> oa.revenue
+    -> FROM flights f
+    -> JOIN operations_analytics oa
+    -> ON f.flight_id = oa.flight_id
+    -> ORDER BY oa.revenue DESC;
++-----------+------------+
+| flight_no | revenue    |
++-----------+------------+
+| UK450     | 1200000.00 |
+| AI305     |  950000.00 |
+| 6E201     |  810000.00 |
+| SG110     |  720000.00 |
+| 9I600     |  500000.00 |
++-----------+------------+
+5 rows in set (0.00 sec)
+
+mysql
